@@ -32,7 +32,7 @@ An event will be logged by FSRM to the Event Viewer (Source = SRMSVC, Event ID =
 
 <i><b>NOTE:</b> An additional script is provided to create a Scheduled Task, which runs the Crypto Blocker Deployment script daily for pattern udpates.  It runs the whole script (including checking for FSRM), but the script is fairly fast.</i>
 
-<i><b>NOTE:</b> The original script is checked for override files (SkipList.txt, ProtectList.txt, IncludeList.txt) in multiple locations.  This script only recognixes override files in the same folder as the main script.</i>
+<i><b>NOTE:</b> The original script is checked for override files (SkipList.txt, ProtectList.txt, IncludeList.txt) in multiple locations.  This script only recognizes override files in the same folder as the main script.</i>
 
 <b>SkipList.txt</b>
 
