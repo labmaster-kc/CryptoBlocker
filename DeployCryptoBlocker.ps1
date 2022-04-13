@@ -1,21 +1,34 @@
 <#----------------------------------------------------------
 	Script:		DeployCryptoBlocker.ps1
-	Version: 	v20220404
+	Version: 	v20220408
 	Comments:	Sets up FSRM for Crypto Blocker using pattern list from the internet.
 	Author:		labmaster-kc
 
+    Exception Handling - we have 3 ways to handle exceptions (false positives)
+    1. (SkipList) Remove the pattern from the main File Group.
+        a. That pattern will not be blocked
+        b. 5000 other patterns will still be blocked
+    2. (ExcludeList) Create an exception for the subfolder (must be a subfolder), and allow all patterns in that exception folder (and tree)
+        a. Works really well when an application creates files with random extensions, but always puts them in the same (specific) folder.
+        b. Doesn't work well in common folders like C:\Windows\Temp where you don't want to allow all patterns to be written.
+    3. (ExceptionList) Create an exception for a specific subfolder and allow specific patterns to be written to that folder.
+        a. Very specific
+        b. Somewhat complex.  Path, patterns, and JSON need to be correct.
+
     Additional Config files
     ProtectList.txt:   List of paths that must be protected
+    ExcludeList.txt:   Override list of paths that should not be monitored, one entry per line
     SkipList.txt:      List of patterns that should not be monitored, one entry per line
     IncludeList.txt:   Override list of patterns that should be monitored, one entry per line
+    ExceptionList.txt: Override list of paths that should not be monitored and specific patterns that are allowed in that path, JSON file
 ----------------------------------------------------------#>
 <#VARIABLE DECLARATION#>
 ##	Email notification - Used to send email notification to defined administrator
 	$computer = $env:computername
 	$senderEmail = $computer + ".CryptoBlocker@email.com"									##	From email address
 	$senderPassword = ""								##	Password for 'From' email address
-	$adminEmail = "labmaster@email.com"					##	Email of administrator to notify
-	$smtpServer = "mail.domain.com"						##	SMTP server to use when sending email
+	$adminEmail = "email@email.com"					##	Email of administrator to notify
+	$smtpServer = "mail.email.com"						##	SMTP server to use when sending email
 	$smtpSendPort = ""									##	port used to send SMTP email (587)
 	$emailNotificationLimit = 1							##  minimum number of minutes between notifications
 	$eventNotificationLimit = 1							##  minimum number of minutes between writing events to the event log
@@ -25,14 +38,14 @@
 
 ##	------------------------------------------------------------------------------------------------
 # Names to use in FSRM
-$fileGroupName = "zzzCryptoBlockerGroup"
-$fileTemplateName = "zzzCryptoBlockerTemplate"
+$fileGroupName = "CryptoBlockerGroup"
+$fileTemplateName = "CryptoBlockerTemplate"
 $fileTemplateDescription = "Crypto Blocker Template"
 # set screening type to
 # Active screening: Do not allow users to save unathorized files
 $fileScreeningActive = $false
 # Passive screening: Allow users to save unathorized files (use for monitoring)
-#$fileTemplateType = "Passive"
+#$fileTemplateType = "Passiv"
 
 # Email config - The message applies to Events too.
 
@@ -264,5 +277,58 @@ $drivesContainingShares | ForEach-Object {
 }
 
 
+##-------------------------------------------
+## File Screen Exceptions - ExcludeList.txt
+## File Screen Exceptions must apply to subfolders of existing File Screens
+## ** For now, allow all patterns in these exception folders
+## Delete the File Screen Exception if it exists, then add back as a new screen exception
+## Check to see if we have any Folder Exceptions to exclude - ExcludeList.txt has to be in same folder as deploy script
+Write-Host "`n####"
+Write-Host "Processing ExcludeList.."
+If (Test-Path $PSScriptRoot\ExcludeList.txt) {
+    Get-Content $PSScriptRoot\ExcludeList.txt | ForEach-Object {
+        Write-Host -ForegroundColor Cyan $_
+        If (Test-Path $_) {
+            Remove-FsrmFileScreenException -Path $_ -Confirm:$false -ErrorAction SilentlyContinue
+            New-FsrmFileScreenException -Path $_ -Description "Crypto Blocker Screening Exception" -IncludeGroup $fileGroupName
+            #New-FsrmFileScreenException -Path $_ -Description "Crypto Blocker Screening Exception"
+        }
+    }
+}
+
+##-------------------------------------------
+## File Screen Exceptions - ExceptionList.txt
+## File Screen Exceptions must apply to subfolders of existing File Screens
+## ** This is more precise with FileGroups that match exceptions and only "allow" certain files in these exception folders
+## Delete the File Screen Exception if it exists, then add back as a new screen exception
+## Check to see if we have any Folder Exceptions to exclude - ExceptionList.txt has to be in same folder as deploy script
+Write-Host "`n####"
+Write-Host "Processing ExceptionList.."
+If (Test-Path $PSScriptRoot\ExceptionList.txt) {
+    $exceptionList = Get-Content $PSScriptRoot\ExceptionList.txt | ConvertFrom-Json
+    foreach ($exception in $exceptionList.exceptions)
+    {
+        Write-Host -ForegroundColor Yellow $exception.name
+        If (Test-Path $exception.path) {
+            # Remove and re-create File Groups with patterns specific to this exception path
+            Remove-FsrmFileGroup -Name $exception.name -Confirm:$false -ErrorAction SilentlyContinue
+
+            # Get the pattern list, and create a new File Group
+            $exceptionPatterns = % {$exception.patterns}
+            New-FsrmFileGroup -Name $exception.name -IncludePattern $exceptionPatterns
+            
+            # Remove and re-create File Scnreen Exception with specific File Group patterns
+            Remove-FsrmFileScreenException -Path $exception.path -Confirm:$false -ErrorAction SilentlyContinue
+            New-FsrmFileScreenException -Path $exception.path -Description "Crypto Blocker Screening Exception" -IncludeGroup $exception.name
+            #New-FsrmFileScreenException -Path $_ -Description "Crypto Blocker Screening Exception"
+        }
+    }
+}
+
+
+
+
 ################################ Functions ################################
+
+
 
