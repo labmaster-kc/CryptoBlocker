@@ -46,6 +46,14 @@ By default, this script will enumarate all the shares running on the server and 
 
 Sometimes you have file screens that you want to add that are not included in the download from Experiant. In this case, you can simply create a file named <tt>IncludeList.txt</tt> and put the screens you would like to add, one per line. If this file does not exist, only the screens from Experiant are included.
 
+<b>ExcludeList.txt</b>
+
+The Exclude list will effectively allow all patterns to be written to the path that you specify. Create a file named <tt>ExceptionList.txt</tt> and add one path per line.
+
+<b>ExceptionList.txt</b>
+
+The Exclude list will effectively allow all patterns to be written to the path that you specify. In most cases, you would rather allow a few select pattersn to be written to a path.  As well, you might want to allow different patterns in different paths.  In this case, you can create a JSON file named <tt>ExceptionList.txt</tt> and add the name, path, and patterns. An example <tt>ExceptionList.txt</tt> is provided.  Don't forget to escape backslashes in the path, and make sur eyou have commas in the right places for multiple entities.
+
 <b>Disclaimer</b>
 
 This script is provided as is.  I can not be held liable if this does not thwart a ransomware infection, causes your server to spontaneously combust, results in job loss, etc.
