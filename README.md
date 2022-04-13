@@ -52,7 +52,7 @@ The Exclude list will effectively allow all patterns to be written to the path t
 
 <b>ExceptionList.txt</b>
 
-The Exclude list will effectively allow all patterns to be written to the path that you specify. In most cases, you would rather allow a few select pattersn to be written to a path.  As well, you might want to allow different patterns in different paths.  In this case, you can create a JSON file named <tt>ExceptionList.txt</tt> and add the name, path, and patterns. An example <tt>ExceptionList.txt</tt> is provided.  Don't forget to escape backslashes in the path, and make sur eyou have commas in the right places for multiple entities.
+The Exclude list will effectively allow all patterns to be written to the path that you specify. In most cases, you would rather allow a few select pattersn to be written to a path.  As well, you might want to allow different patterns in different paths.  In this case, you can create a JSON file named <tt>ExceptionList.txt</tt> and add the name, path, and patterns. An example <tt>ExceptionList.txt</tt> is provided.  Don't forget to escape backslashes in the path, and make sure you have commas in the right places for multiple entities.
 
 <b>Disclaimer</b>
 
