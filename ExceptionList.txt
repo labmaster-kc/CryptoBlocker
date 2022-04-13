@@ -1,0 +1,33 @@
+{
+  "usage": "Start with an Exception Name, add an exception path and define patterns that apply to that path.  Backslashes need to be escaped.  Check syntax - https://jsoneditoronline.org/",
+  "exceptions": [
+    {
+      "name": "ExMsDiag",
+      "path": "C:\\ProgramData\\Microsoft\\Diagnosis\\DownloadedSettings",
+      "patterns": [
+        "*.json.bk"
+      ]
+    },
+    {
+      "name": "ExArcGisJavaw",
+      "path": "C:\\Program Files\\ArcGIS\\Server\\framework\\runtime\\ejbs",
+      "patterns": [
+        "*.info"
+      ]
+    },
+    {
+      "name": "ExEdgePb",
+      "path": "C:\\Program Files (x86)\\Microsoft",
+      "patterns": [
+        "*.pb"
+      ]
+    },
+    {
+      "name": "ExArcGisPostgres",
+      "path": "C:\\arcgis\\arcgisportal\\db\\pg_wal\\archive_status",
+      "patterns": [
+        "*.done"
+      ]
+    }
+  ]
+}
